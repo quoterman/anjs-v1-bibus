@@ -1,6 +1,7 @@
 import {BaseEntity, Column, Entity, OneToMany, PrimaryColumn} from "typeorm";
 import {UserEmail} from "models/user-email";
 import {TempToken} from "models/temp-token";
+import {JwtToken} from "models/jwt-token";
 
 export enum UserRole {
   ADMIN = "admin",
@@ -20,10 +21,13 @@ export class User extends BaseEntity {
   role: UserRole;
 
   @OneToMany(type => UserEmail, email => email.user)
-  email: UserEmail[]
+  emails: UserEmail[]
 
   @OneToMany(type => TempToken, token => token.user)
-  tokens: TempToken[]
+  tempTokens: TempToken[]
+
+  @OneToMany(type => JwtToken, token => token.user)
+  jwtTokens: JwtToken[]
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

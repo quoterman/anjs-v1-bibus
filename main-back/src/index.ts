@@ -4,6 +4,7 @@ import {User, UserRole} from "models/user";
 import {UserEmail} from "models/user-email";
 import {v4} from "uuid";
 import {TempToken} from "models/temp-token";
+import {JwtToken} from "models/jwt-token";
 
 
 (async () => {
@@ -23,7 +24,8 @@ import {TempToken} from "models/temp-token";
     entities: [
       User,
       UserEmail,
-      TempToken
+      TempToken,
+      JwtToken
     ],
     synchronize: true,
     logging: false

@@ -10,7 +10,7 @@ export class JwtToken extends BaseEntity {
   @Column('boolean')
   used: boolean;
 
-  @ManyToOne(type => User, user => user.email)
+  @ManyToOne(type => User, user => user.jwtTokens)
   user: User
 
   @Column({ type: 'timestamp', nullable: true })

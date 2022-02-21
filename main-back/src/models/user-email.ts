@@ -15,7 +15,7 @@ export class UserEmail extends BaseEntity {
   @Column('text')
   value: string;
 
-  @ManyToOne(type => User, user => user.email)
+  @ManyToOne(type => User, user => user.emails)
   user: User
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

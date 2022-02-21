@@ -10,7 +10,7 @@ export class TempToken extends BaseEntity {
   @Column('boolean')
   used: boolean;
 
-  @ManyToOne(type => User, user => user.email)
+  @ManyToOne(type => User, user => user.tempTokens)
   user: User
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
