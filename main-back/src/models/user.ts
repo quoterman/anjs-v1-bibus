@@ -65,7 +65,7 @@ export class User extends BaseEntity {
     return mainEmail.lastTempToken()
   }
 
-  static async register(email: string) {
+  static async registerUser(email: string) {
     const user = new User()
     user.id = v4()
     user.role = UserRole.USER

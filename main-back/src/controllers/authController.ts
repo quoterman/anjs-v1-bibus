@@ -1,27 +1,30 @@
+import {AuthLoginBodySchema, AuthRegisterBodySchema, AuthRequestTokenBodySchema} from "controllers/auth.req-res";
 import {FastifyReply, FastifyRequest} from "fastify";
+import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
 import {UserEmail} from "models/user-email";
-
-import {JWTToken} from "src/utils/jwt-tokens";
+import pino from "pino";
+import {JWTToken} from "utils/jwt-tokens";
 
 type EmailSender = {
   sendEmail: (message: string, email: string) => Promise<void>
 }
 
-export class Auth {
+export class AuthController {
   constructor(
+    private logger: pino.Logger,
     private emailSender: EmailSender,
     private privateKey: string,
   ) {}
 
-  async register(request: FastifyRequest, reply: FastifyReply) {
+  async register(request: FastifyRequest<{Body: FromSchema<typeof AuthRegisterBodySchema>}>, reply: FastifyReply) {
     // . Check email
     if (await UserEmail.checkEmailExist(request.body.email)) {
       throw new Error(`User with email ${request.body.email} already exist`)
     }
 
     // . Create new user, email and passwordless token
-    const user = await User.register(request.body.email)
+    const user = await User.registerUser(request.body.email)
     await user.save()
 
     // . Send token to email
@@ -36,11 +39,11 @@ export class Auth {
 
     // . Return User
     reply.status(200).send({
-      reply: "OK"
+      status: "success"
     })
   }
 
-  async requestToken(request: FastifyRequest, reply: FastifyReply) {
+  async requestToken(request: FastifyRequest<{Body: FromSchema<typeof AuthRequestTokenBodySchema>}>, reply: FastifyReply) {
     const user = await User.findOne({
       where: {
         emails: {
@@ -73,7 +76,7 @@ export class Auth {
     })
   }
 
-  async login(request: FastifyRequest, reply: FastifyReply) {
+  async login(request: FastifyRequest<{Body: FromSchema<typeof AuthLoginBodySchema>}>, reply: FastifyReply) {
     // ! TELL ABOUT LOGIC FROM TEMP TOKEN
 
     const user = await User.findOne({
@@ -136,5 +139,9 @@ export class Auth {
     }
 
     await user.logout()
+
+    reply.status(200).send({
+      reply: "OK"
+    })
   }
 }

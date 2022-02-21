@@ -1,13 +1,21 @@
 import "reflect-metadata";
-import {createConnection} from "typeorm";
-import {User, UserRole} from "models/user";
-import {UserEmail} from "models/user-email";
-import {v4} from "uuid";
-import {TempToken} from "models/temp-token";
-import {JwtToken} from "models/jwt-token";
 
+import {config} from "config";
+import {app} from "fastify-app";
+import {JwtToken} from "models/jwt-token";
+import {TempToken} from "models/temp-token";
+import {User} from "models/user";
+import {UserEmail} from "models/user-email";
+import {createConnection} from "typeorm";
+
+declare module "fastify" {
+  interface FastifyRequest {
+    userId?: string;
+  }
+}
 
 (async () => {
+  // DB
   const connection = await createConnection({
     type: "postgres",
     host: "ec2-52-215-225-178.eu-west-1.compute.amazonaws.com",
@@ -28,6 +36,9 @@ import {JwtToken} from "models/jwt-token";
       JwtToken
     ],
     synchronize: true,
-    logging: false
+    logging: true,
   })
+
+
+  await app.listen(config.http.port, "0.0.0.0");
 })();
