@@ -108,7 +108,7 @@ export const AuthLoginResponsesSchema = {
   "200": {
     title: "Success",
     type: "object",
-    required: ["status"],
+    required: ["token"],
     properties: {
       token: {
         type: "string",

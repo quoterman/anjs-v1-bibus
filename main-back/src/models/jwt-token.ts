@@ -8,9 +8,7 @@ export class JwtToken extends BaseEntity {
   @PrimaryColumn()
   id: string;
 
-  @ManyToOne(type => User, user => user.jwtTokens, {
-    eager: true
-  })
+  @ManyToOne(type => User, user => user.jwtTokens)
   user: User
 
   @Column({ type: 'timestamp', nullable: true })

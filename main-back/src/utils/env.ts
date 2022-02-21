@@ -1,5 +1,3 @@
-import { InternalError } from "../errors";
-
 export type getEnvOrThrow = ReturnType<typeof getEnvOrThrow>;
 
 export const getEnvOrThrow =
@@ -8,7 +6,7 @@ export const getEnvOrThrow =
       const value = process.env[envName];
 
       if (!value) {
-        const err = new InternalError(`Env variable '${envName}' is required`);
+        const err = new Error(`Env variable '${envName}' is required`);
 
         if (log) {
           log(err);

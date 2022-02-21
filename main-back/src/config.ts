@@ -1,11 +1,8 @@
-import path from "path";
 
 import dotenv from "dotenv";
 import {Env} from "utils/env";
 
-dotenv.config({
-  path: path.resolve(process.cwd(), "src/apps/main/.env"),
-});
+dotenv.config();
 
 export type ConfigEnv = "development" | "production" | "test";
 export const ConfigEnv = {
@@ -43,6 +40,7 @@ export type Config = {
 const getEnvOrThrowLogs = Env.getEnvOrThrow(console.error);
 
 // . CONFIG
+const port = process.env["PORT"]
 export const config: Config = {
   db: {
     connectionString: getEnvOrThrowLogs("MAIN_DB_CONNECTION_STRING"),
@@ -51,7 +49,7 @@ export const config: Config = {
   appName: "bibus",
   environment: ConfigEnv.ofString(getEnvOrThrowLogs("NODE_ENV")),
   http: {
-    port: +getEnvOrThrowLogs("PORT") || 3000,
+    port: port ? +port : 3000,
     swagger: {
       active: true,
     },

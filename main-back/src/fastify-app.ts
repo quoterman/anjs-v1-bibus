@@ -1,11 +1,11 @@
 import {config} from "config";
+import {AuthController} from "controllers/auth";
 import {
   AuthLoginBodySchema,
   AuthLoginResponsesSchema, AuthLogoutResponsesSchema,
   AuthRegisterBodySchema,
   AuthRegisterResponsesSchema, AuthRequestTokenBodySchema, AuthRequestTokenResponsesSchema
 } from "controllers/auth.req-res";
-import {AuthController} from "controllers/authController";
 import {emailSender} from "email-sender";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
@@ -14,7 +14,13 @@ import {User} from "models/user";
 import {JWTToken} from "utils/jwt-tokens";
 import {v4} from "uuid";
 
-import {logger} from "../logger";
+import {logger} from "./logger";
+
+declare module "fastify" {
+  interface FastifyRequest {
+    userId?: string;
+  }
+}
 
 export const app: FastifyInstance = Fastify({
   logger: config.logger.active && logger,
@@ -28,7 +34,7 @@ if (config.http.swagger.active) {
     routePrefix: "/documentation",
     openapi: {
       info: {
-        title: "nearpay-ninjas",
+        title: "bibus",
         version: "1",
       },
     },
@@ -51,9 +57,76 @@ app.addSchema({
 // . AUTH
 app.decorateRequest("userId", "");
 
+const authController = new AuthController(
+  logger,
+  emailSender,
+  config.jwtToken.secret,
+)
+
 // . ROUTER
+// . AUTH
+// . AUTH PREFIX
+app.register((authRoutes, opts, done) => {
+  authRoutes.post<{
+    Body: FromSchema<typeof AuthRegisterBodySchema>;
+    // Reply: AuthRegisterResponsesSchema;
+  }>(
+    "/register",
+    {
+      schema: {
+        body: AuthRegisterBodySchema,
+        response: AuthRegisterResponsesSchema,
+      },
+    },
+    async (request, reply) => {
+      return authController.register(
+        request,
+        reply
+      )
+    })
+
+  authRoutes.post<{
+    Body: FromSchema<typeof AuthLoginBodySchema>;
+    // Reply: AuthRegisterResponsesSchema;
+  }>(
+    "/login",
+    {
+      schema: {
+        body: AuthLoginBodySchema,
+        response: AuthLoginResponsesSchema,
+      },
+    },
+    async (request, reply) => {
+      return authController.login(
+        request,
+        reply
+      )
+    })
+
+  authRoutes.post<{
+    Body: FromSchema<typeof AuthRequestTokenBodySchema>;
+    // Reply: AuthRequestTokenResponsesSchema;
+  }>(
+    "/request-token",
+    {
+      schema: {
+        body: AuthRequestTokenBodySchema,
+        response: AuthRequestTokenResponsesSchema,
+      },
+    },
+    async (request, reply) => {
+      return authController.requestToken(
+        request,
+        reply
+      )
+    })
+  done()
+}, {
+  prefix: "/auth"
+})
+
 // . AUTHENTICATED
-app.register(async (childServer) => {
+app.register(async (childServer, opts, done) => {
   childServer.addHook("onRequest", async (request) => {
     if (
       request.url.includes("documentation") ||
@@ -74,10 +147,6 @@ app.register(async (childServer) => {
       throw new Error(`Permission denied`);
     }
 
-    // const user = await NinjasUserTable(knex)
-    //   .where({ authToken: token })
-    //   .first();
-
     const decoded = JWTToken.verify(config.jwtToken.secret, token)
 
     const user = await User.findOne({
@@ -95,67 +164,7 @@ app.register(async (childServer) => {
   });
 
   // . AUTH PREFIX
-  childServer.register((authRoutes) => {
-    const authController = new AuthController(
-      logger,
-      emailSender,
-      config.jwtToken.secret,
-    )
-
-    authRoutes.post<{
-      Body: FromSchema<typeof AuthRegisterBodySchema>;
-      // Reply: AuthRegisterResponsesSchema;
-    }>(
-      "/register",
-      {
-        schema: {
-          body: AuthRegisterBodySchema,
-          response: AuthRegisterResponsesSchema,
-        },
-      },
-      async (request, reply) => {
-        return authController.register(
-          request,
-          reply
-        )
-      })
-
-    authRoutes.post<{
-      Body: FromSchema<typeof AuthLoginBodySchema>;
-      // Reply: AuthRegisterResponsesSchema;
-    }>(
-      "/login",
-      {
-        schema: {
-          body: AuthLoginBodySchema,
-          response: AuthLoginResponsesSchema,
-        },
-      },
-      async (request, reply) => {
-        return authController.login(
-          request,
-          reply
-        )
-      })
-
-    authRoutes.post<{
-      Body: FromSchema<typeof AuthRequestTokenBodySchema>;
-      // Reply: AuthRequestTokenResponsesSchema;
-    }>(
-      "/request-token",
-      {
-        schema: {
-          body: AuthRequestTokenBodySchema,
-          response: AuthRequestTokenResponsesSchema,
-        },
-      },
-      async (request, reply) => {
-        return authController.requestToken(
-          request,
-          reply
-        )
-      })
-
+  childServer.register((authRoutes, opts, done) => {
     authRoutes.post<{
       // Reply: AuthLogoutResponsesSchema;
     }>(
@@ -171,9 +180,10 @@ app.register(async (childServer) => {
           reply
         )
       })
-
+    done()
   }, {
     prefix: "/auth"
   })
 
+  done()
 })

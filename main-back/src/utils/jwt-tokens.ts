@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 export type JWTToken = {
   id: string
   userId: string
-  identityEmail: string
+  userEmail: string
 }
 export const JWTToken = {
   sign: (secret: string, token: JWTToken) => {
@@ -22,7 +22,7 @@ export const JWTToken = {
     if (
       !decoded.id
       || !decoded.userId
-      || !decoded.identityEmail
+      || !decoded.userEmail
     ) {
       throw new Error(`Decoded JWT is not fullfilled, ${decoded}`)
     }
@@ -30,7 +30,7 @@ export const JWTToken = {
     return {
       id: decoded.id,
       userId: decoded.userId,
-      identityEmail: decoded.identityEmail,
+      userEmail: decoded.userEmail,
     }
   }
 }

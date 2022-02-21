@@ -22,12 +22,14 @@ export class User extends BaseEntity {
   role: UserRole;
 
   @OneToMany(type => UserEmail, email => email.user, {
-    eager: true
+    eager: true,
+    cascade: ["insert", "update"]
   })
   emails: UserEmail[]
 
   @OneToMany(type => JwtToken, token => token.user, {
-    eager: true
+    eager: true,
+    cascade: ["insert", "update"]
   })
   jwtTokens: JwtToken[]
 
@@ -51,8 +53,8 @@ export class User extends BaseEntity {
     return email
   }
 
-  tokenById(id: string) {
-    return this.mainEmail().tempTokens.filter(token => token.id === id)[0]
+  async tokenById(id: string) {
+    return (await this.mainEmail().tempTokens).filter(token => token.id === id)[0]
   }
 
   lastTempToken() {
@@ -69,9 +71,10 @@ export class User extends BaseEntity {
     const user = new User()
     user.id = v4()
     user.role = UserRole.USER
+    user.emails = []
+    user.jwtTokens = []
 
     const userEmail = await UserEmail.createByUser(email, user)
-    await userEmail.save()
 
     user.emails.push(userEmail)
 
@@ -90,15 +93,16 @@ export class User extends BaseEntity {
 
   async loginByTempToken(token: TempToken) {
     if (token.used) {
-      throw new Error(``)
+      throw new Error(`Already used`)
     }
 
     this.mainEmail().activate()
-    await this.mainEmail().save()
 
-    const newJwtToken = JwtToken.createNew(this)
-    await newJwtToken.save()
+    this.jwtTokens.push(
+      JwtToken.createNew(this)
+    )
 
-    this.jwtTokens.push(newJwtToken)
+    token.use()
+    await token.save()
   }
 }

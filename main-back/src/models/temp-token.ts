@@ -29,4 +29,8 @@ export class TempToken extends BaseEntity {
 
     return token
   }
+
+  use() {
+    this.used = true
+  }
 }

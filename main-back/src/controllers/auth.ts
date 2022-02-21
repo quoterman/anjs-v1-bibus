@@ -1,6 +1,7 @@
 import {AuthLoginBodySchema, AuthRegisterBodySchema, AuthRequestTokenBodySchema} from "controllers/auth.req-res";
 import {FastifyReply, FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
+import {TempToken} from "models/temp-token";
 import {User} from "models/user";
 import {UserEmail} from "models/user-email";
 import pino from "pino";
@@ -28,7 +29,7 @@ export class AuthController {
     await user.save()
 
     // . Send token to email
-    const token = user.lastTempToken()
+    const token = await user.lastTempToken()
     const email = user.mainEmail()
 
     if (!token || !email) {
@@ -63,7 +64,7 @@ export class AuthController {
 
     await user.createNewToken()
 
-    const token = user.lastTempToken()
+    const token = await user.lastTempToken()
 
     if (!token) {
       throw new Error(`There is no token`)
@@ -77,31 +78,26 @@ export class AuthController {
   }
 
   async login(request: FastifyRequest<{Body: FromSchema<typeof AuthLoginBodySchema>}>, reply: FastifyReply) {
-    // ! TELL ABOUT LOGIC FROM TEMP TOKEN
-
-    const user = await User.findOne({
+    const tempToken = await TempToken.findOne({
       where: {
-        emails: {
+        id: request.body.tempToken,
+        used: false,
+        userEmail: {
           value: request.body.email,
           main: true,
-          tempTokens: {
-            id: request.body.tempToken,
-            used: false
-          }
         }
-      }
+      },
+      relations: [
+        "userEmail",
+        "userEmail.user"
+      ]
     })
 
-    if (!user) {
-      throw new Error(`There is no token with id ${request.body.tempToken}`)
-    }
-
-    const tempToken = user.tokenById(request.body.tempToken)
-
     if (!tempToken) {
-      throw new Error(``)
+      throw new Error(`There is no unused token with id ${request.body.tempToken}`)
     }
 
+    const user = tempToken.userEmail.user
     await user.loginByTempToken(tempToken)
     await user.save()
 
@@ -109,17 +105,15 @@ export class AuthController {
     const jwtToken = user.lastJwtToken()
 
     if (!jwtToken) {
-      throw new Error(`...`)
-    }
-
-    const token: JWTToken = {
-      id: jwtToken.id,
-      userId: user.id,
-      identityEmail: user.mainEmail().value,
+      throw new Error(`No JWT Token`)
     }
 
     reply.status(200).send({
-      token: JWTToken.sign(this.privateKey, token),
+      token: JWTToken.sign(this.privateKey, {
+        id: jwtToken.id,
+        userId: user.id,
+        userEmail: user.mainEmail().value,
+      }),
     })
   }
 
