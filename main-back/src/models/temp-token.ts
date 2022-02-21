@@ -1,5 +1,6 @@
-import {BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn, UpdateDateColumn} from "typeorm";
-import {User} from "models/user";
+import {UserEmail} from "models/user-email";
+import {BaseEntity, Column, Entity, ManyToOne, PrimaryColumn} from "typeorm";
+import {v4} from "uuid";
 
 
 @Entity()
@@ -10,12 +11,22 @@ export class TempToken extends BaseEntity {
   @Column('boolean')
   used: boolean;
 
-  @ManyToOne(type => User, user => user.tempTokens)
-  user: User
+  @ManyToOne(type => UserEmail, userEmail => userEmail.tempTokens)
+  userEmail: UserEmail
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
   @Column({ type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP', nullable: true })
   updatedAt: Date
+
+  static createByUser(userEmail: UserEmail): TempToken {
+    const token = new TempToken()
+    token.id = v4()
+    token.used = false
+    token.userEmail = userEmail
+    token.createdAt = new Date()
+
+    return token
+  }
 }
