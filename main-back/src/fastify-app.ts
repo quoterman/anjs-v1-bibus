@@ -54,7 +54,6 @@ app.addSchema({
   },
 });
 
-// . AUTH
 app.decorateRequest("userId", "");
 
 const authController = new AuthController(
@@ -64,7 +63,6 @@ const authController = new AuthController(
 )
 
 // . ROUTER
-// . AUTH
 // . AUTH PREFIX
 app.register((authRoutes, opts, done) => {
   authRoutes.post<{
@@ -159,11 +157,16 @@ app.register(async (childServer, opts, done) => {
       throw new Error(`Permission denied`);
     }
 
+    const jwtToken = await user.jwtTokenById(decoded.id)
+
+    if (!jwtToken || !jwtToken.active()) {
+      throw new Error(`Permission denied`)
+    }
+
     // eslint-disable-next-line require-atomic-updates
-    request.userId = user.id;
+    {request.userId = user.id;}
   });
 
-  // . AUTH PREFIX
   childServer.register((authRoutes, opts, done) => {
     authRoutes.post<{
       // Reply: AuthLogoutResponsesSchema;

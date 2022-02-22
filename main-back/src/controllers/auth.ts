@@ -45,39 +45,46 @@ export class AuthController {
   }
 
   async requestToken(request: FastifyRequest<{Body: FromSchema<typeof AuthRequestTokenBodySchema>}>, reply: FastifyReply) {
-    const user = await User.findOne({
+    // . Get user email for token
+    const userEmail = await UserEmail.findOne({
       where: {
-        emails: {
-          main: true,
-          value: request.body.email,
-        }
-      }
+        main: true,
+        value: request.body.email,
+      },
+      relations: ["user"]
     })
 
-    if (!user) {
+    if (!userEmail) {
       reply.status(200).send({
-        reply: "OK"
+        status: "success"
       })
 
       return
     }
 
+    const user = userEmail.user
+
+    // . Create new token
     await user.createNewToken()
 
+    // . Get this last token
     const token = await user.lastTempToken()
 
     if (!token) {
       throw new Error(`There is no token`)
     }
 
+    // . Send email with token
     await this.emailSender.sendEmail(`Your token is ${token.id}`, user.mainEmail().value)
 
+    // . Success
     reply.status(200).send({
-      reply: "OK"
+      status: "success"
     })
   }
 
   async login(request: FastifyRequest<{Body: FromSchema<typeof AuthLoginBodySchema>}>, reply: FastifyReply) {
+    // . Get temp token with user
     const tempToken = await TempToken.findOne({
       where: {
         id: request.body.tempToken,
@@ -97,17 +104,19 @@ export class AuthController {
       throw new Error(`There is no unused token with id ${request.body.tempToken}`)
     }
 
+    // . Login
     const user = tempToken.userEmail.user
     await user.loginByTempToken(tempToken)
     await user.save()
 
-    // . Get token and create new for user
+    // . Create JWT for User
     const jwtToken = user.lastJwtToken()
 
     if (!jwtToken) {
       throw new Error(`No JWT Token`)
     }
 
+    // . Send JWT
     reply.status(200).send({
       token: JWTToken.sign(this.privateKey, {
         id: jwtToken.id,
@@ -118,10 +127,12 @@ export class AuthController {
   }
 
   async logout(request: FastifyRequest, reply: FastifyReply) {
+    // . Check auth
     if (!request.userId) {
       throw new Error(`Permission denied`);
     }
 
+    // . Get User
     const user = await User.findOne({
       where: {
         id: request.userId,
@@ -132,10 +143,12 @@ export class AuthController {
       throw new Error(`User must be`)
     }
 
+    // . Logout
     await user.logout()
 
+    // . Success
     reply.status(200).send({
-      reply: "OK"
+      status: "success"
     })
   }
 }

@@ -40,7 +40,7 @@ export class User extends BaseEntity {
   updatedAt: Date
 
   lastJwtToken() {
-    return this.jwtTokens.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())[0]
+    return this.jwtTokens.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]
   }
 
   mainEmail(): UserEmail {
@@ -53,8 +53,12 @@ export class User extends BaseEntity {
     return email
   }
 
-  async tokenById(id: string) {
-    return (await this.mainEmail().tempTokens).filter(token => token.id === id)[0]
+  // async tokenById(id: string) {
+  //   return (await this.mainEmail().tempTokens).filter(token => token.id === id)[0]
+  // }
+
+  async jwtTokenById(id: string) {
+    return this.jwtTokens.filter(token => token.id === id)[0]
   }
 
   lastTempToken() {
@@ -96,12 +100,19 @@ export class User extends BaseEntity {
       throw new Error(`Already used`)
     }
 
-    this.mainEmail().activate()
+    if (token.isExpired()) {
+      throw new Error("Token is expired")
+    }
 
+    // . Activate email if it hasn't been
+    {this.mainEmail().activate()}
+
+    // . Create new JWT token
     this.jwtTokens.push(
       JwtToken.createNew(this)
     )
 
+    // . Make temp token used
     token.use()
     await token.save()
   }

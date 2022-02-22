@@ -30,7 +30,7 @@ export class UserEmail extends BaseEntity {
   updatedAt: Date
 
   async lastTempToken(): Promise<TempToken | undefined> {
-    return (await this.tempTokens).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())[0]
+    return (await this.tempTokens).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]
   }
 
   static async createByUser(email: string, user: User) {

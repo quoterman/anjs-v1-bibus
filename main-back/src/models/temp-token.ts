@@ -33,4 +33,8 @@ export class TempToken extends BaseEntity {
   use() {
     this.used = true
   }
+
+  isExpired(): boolean {
+    return new Date(Date.now()-24*60*60*1000) < this.createdAt
+  }
 }

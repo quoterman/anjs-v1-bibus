@@ -37,4 +37,8 @@ export class JwtToken extends BaseEntity {
   logout() {
     this.logoutDate = new Date()
   }
+
+  active() {
+    return this.logoutDate === null && this.banDate === null
+  }
 }
