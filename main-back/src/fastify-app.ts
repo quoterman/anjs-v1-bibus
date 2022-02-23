@@ -6,6 +6,8 @@ import {
   AuthRegisterBodySchema,
   AuthRegisterResponsesSchema, AuthRequestTokenBodySchema, AuthRequestTokenResponsesSchema
 } from "controllers/auth.req-res";
+import {UserController} from "controllers/user";
+import {UserUpdateBodySchema} from "controllers/user.req-res";
 import {emailSender} from "email-sender";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
@@ -60,6 +62,10 @@ const authController = new AuthController(
   logger,
   emailSender,
   config.jwtToken.secret,
+)
+
+const userController = new UserController(
+  logger,
 )
 
 // . ROUTER
@@ -186,6 +192,27 @@ app.register(async (childServer, opts, done) => {
     done()
   }, {
     prefix: "/auth"
+  })
+
+  childServer.register((authRoutes, opts, done) => {
+    authRoutes.put<{
+      Body: FromSchema<typeof UserUpdateBodySchema>;
+    }>(
+      "/",
+      {
+        schema: {
+          body: UserUpdateBodySchema,
+          // response: UserResponse,
+        },
+      },
+      async (request, reply) => {
+        return userController.update(
+          request,
+        )
+      })
+    done()
+  }, {
+    prefix: "/user"
   })
 
   done()

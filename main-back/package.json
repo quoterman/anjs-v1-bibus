@@ -48,16 +48,8 @@
   },
   "scripts": {
     "start": "NODE_PATH=./build node build/apps/main-gql/index.js",
-    "postinstall": "test -n \"$NOYARNPOSTINSTALL\" || npm run postinstall:script",
-    "postinstall:script": "npm run db:intro:withoutenv && npm run gql:gen && npm run build",
     "test": "jest --passWithNoTests",
-    "gql:gen": "graphql-codegen --config codegen.yaml",
-    "db:intro:withoutenv": "NODE_TLS_REJECT_UNAUTHORIZED=0 schemats generate -C --config ./src/libs/main-db/schemats.js -o ./src/libs/main-db/schemats-schema.ts",
-    "db:intro": "NODE_TLS_REJECT_UNAUTHORIZED=0 env-cmd -f ./.env schemats generate -C --config ./src/libs/main-db/schemats.js -o ./src/libs/main-db/schemats-schema.ts",
     "build": "rimraf build && tsc -P tsconfig.build.json",
-    "build:full": "npm run db:intro && npm run gql:gen && npm run build",
-    "dev:mgql": "npm run build:full && NODE_PATH=./build node build/apps/main-gql/index.js",
-    "dev:mgql:light": "npm run build && NODE_PATH=./build node build/apps/main-gql/index.js",
     "dev:mvc": "npm run build && NODE_PATH=./build node build/index.js"
   },
   "jest": {

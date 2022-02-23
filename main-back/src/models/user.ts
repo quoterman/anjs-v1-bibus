@@ -53,10 +53,6 @@ export class User extends BaseEntity {
     return email
   }
 
-  // async tokenById(id: string) {
-  //   return (await this.mainEmail().tempTokens).filter(token => token.id === id)[0]
-  // }
-
   async jwtTokenById(id: string) {
     return this.jwtTokens.filter(token => token.id === id)[0]
   }
@@ -115,5 +111,20 @@ export class User extends BaseEntity {
     // . Make temp token used
     token.use()
     await token.save()
+  }
+
+  async updateData(newUserData: User, whoEditing: User) {
+    // . Update role
+    if (newUserData.role !== this.role) {
+      if (whoEditing.role !== UserRole.ADMIN) {
+        throw new Error(`Permission denied`)
+      }
+
+      if (newUserData.role !== UserRole.ADMIN && newUserData.role !== UserRole.USER) {
+        throw new Error(`Inappropriate role`)
+      }
+
+      this.role = newUserData.role
+    }
   }
 }
