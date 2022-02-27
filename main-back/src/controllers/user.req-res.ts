@@ -1,7 +1,7 @@
 
 
-export const UserGetOneQuerySchema = {
-  title: "UserGetOneQuerySchema",
+export const UserGetOneParamsSchema = {
+  title: "UserGetOneParamsSchema",
   type: "object",
   properties: {
     id: {

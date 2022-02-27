@@ -1,5 +1,5 @@
-import {UserGetOneQuerySchema, UserUpdateBodySchema} from "controllers/user.req-res";
-import {FastifyReply, FastifyRequest} from "fastify";
+import {UserGetOneParamsSchema, UserUpdateBodySchema} from "controllers/user.req-res";
+import { FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
 import pino from "pino";
@@ -14,10 +14,10 @@ export class UserController {
     return await User.find()
   }
 
-  async getOne(request: FastifyRequest<{Querystring: FromSchema<typeof UserGetOneQuerySchema>}>): Promise<User> {
+  async getOne(request: FastifyRequest<{Params: FromSchema<typeof UserGetOneParamsSchema>}>): Promise<User> {
     const user = await User.findOne({
       where: {
-        id: request.query.id,
+        id: request.params.id,
       }
     })
 
@@ -28,7 +28,7 @@ export class UserController {
     return user
   }
 
-  async getMe(request: FastifyRequest, reply: FastifyReply): Promise<User> {
+  async getMe(request: FastifyRequest): Promise<User> {
     // . Check auth
     if (!request.userId) {
       throw new Error(`Permission denied`);

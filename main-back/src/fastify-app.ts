@@ -7,7 +7,7 @@ import {
   AuthRegisterResponsesSchema, AuthRequestTokenBodySchema, AuthRequestTokenResponsesSchema
 } from "controllers/auth.req-res";
 import {UserController} from "controllers/user";
-import {UserUpdateBodySchema} from "controllers/user.req-res";
+import {UserGetOneParamsSchema, UserUpdateBodySchema} from "controllers/user.req-res";
 import {emailSender} from "email-sender";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
@@ -131,6 +131,7 @@ app.register((authRoutes, opts, done) => {
 
 // . AUTHENTICATED
 app.register(async (childServer, opts, done) => {
+  // . AUTH MIDDLEWARE
   childServer.addHook("onRequest", async (request) => {
     if (
       request.url.includes("documentation") ||
@@ -170,13 +171,11 @@ app.register(async (childServer, opts, done) => {
     }
 
     // eslint-disable-next-line require-atomic-updates
-    {request.userId = user.id;}
+    request.userId = user.id;
   });
 
   childServer.register((authRoutes, opts, done) => {
-    authRoutes.post<{
-      // Reply: AuthLogoutResponsesSchema;
-    }>(
+    authRoutes.post(
       "/logout",
       {
         schema: {
@@ -194,19 +193,58 @@ app.register(async (childServer, opts, done) => {
     prefix: "/auth"
   })
 
-  childServer.register((authRoutes, opts, done) => {
-    authRoutes.put<{
+  childServer.register((userRoutes, opts, done) => {
+    // UPDATE USER
+    userRoutes.put<{
       Body: FromSchema<typeof UserUpdateBodySchema>;
     }>(
       "/",
       {
         schema: {
           body: UserUpdateBodySchema,
-          // response: UserResponse,
         },
       },
       async (request, reply) => {
         return userController.update(
+          request,
+        )
+      })
+
+    // GET ME
+    userRoutes.get(
+      "/me",
+      {
+        schema: {},
+      },
+      async (request, reply) => {
+        return userController.getMe(
+          request,
+        )
+      })
+
+    // GET USERS LIST
+    userRoutes.get(
+      "/",
+      {
+        schema: {},
+      },
+      async (request, reply) => {
+        return userController.list()
+      })
+
+    // GET USER BY ID
+    userRoutes.get<{
+      Params: FromSchema<typeof UserGetOneParamsSchema>;
+    }>(
+      "/:id",
+      {
+        schema: {
+          params: UserGetOneParamsSchema,
+          // response: UserResponse,
+        },
+      },
+      async (request, reply) => {
+        return userController.getOne(
           request,
         )
       })
