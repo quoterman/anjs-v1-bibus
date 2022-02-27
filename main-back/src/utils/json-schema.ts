@@ -16,6 +16,10 @@ export const SuccessResponse = (title: string = "Success") => ({
         description: "Successful operation status",
         example: "success",
       },
+      message: {
+        type: "string",
+        description: "Additional message",
+      }
     },
     additionalProperties: false,
   }
