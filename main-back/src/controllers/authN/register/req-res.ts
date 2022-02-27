@@ -1,3 +1,5 @@
+import {SuccessResponse} from "utils/json-schema";
+
 export const AuthRegisterBodySchema = {
   title: "AuthRegisterBody Schema",
   type: "object",
@@ -15,18 +17,5 @@ export const AuthRegisterBodySchema = {
 } as const;
 
 export const AuthRegisterResponsesSchema = {
-  "200": {
-    title: "Success",
-    type: "object",
-    required: ["status"],
-    properties: {
-      status: {
-        const: "success",
-        type: "string",
-        description: "Successful operation status",
-        example: "success",
-      },
-    },
-    additionalProperties: false,
-  }
+  ...SuccessResponse(),
 } as const;

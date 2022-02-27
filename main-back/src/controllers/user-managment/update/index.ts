@@ -1,7 +1,8 @@
-import {UserUpdateBodySchema} from "controllers/user-managment/update/req-res";
+import {UserUpdateBodySchema, UserUpdateResponsesSchema} from "controllers/user-managment/update/req-res";
 import {FastifyInstance} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
+import {SuccessResponse} from "utils/json-schema";
 
 export const initUpdateUser = (
   app: FastifyInstance,
@@ -9,14 +10,16 @@ export const initUpdateUser = (
 ) => {
   app.put<{
     Body: FromSchema<typeof UserUpdateBodySchema>;
+    Reply: FromSchema<typeof UserUpdateResponsesSchema["200"]>
   }>(
     path,
     {
       schema: {
         body: UserUpdateBodySchema,
+        response: SuccessResponse(),
       },
     },
-    async (request): Promise<User> => {
+    async (request) => {
       const user = await User.findOne({
         where: {
           id: request.body.id,
@@ -42,7 +45,9 @@ export const initUpdateUser = (
       await user.updateData(userData, requester)
       await user.save()
 
-      return user
+      return {
+        status: "success",
+      }
     }
   )
 }

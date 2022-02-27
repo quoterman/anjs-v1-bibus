@@ -1,8 +1,10 @@
+import {AuthLogoutResponsesSchema} from "controllers/authN/logout/req-res";
 import {FastifyReply, FastifyRequest} from "fastify";
+import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
 
 
-export const logout = () => async (request: FastifyRequest, reply: FastifyReply) => {
+export const logout = () => async (request: FastifyRequest, reply: FastifyReply): Promise<FromSchema<typeof AuthLogoutResponsesSchema["200"]>> => {
   // . Check auth
   if (!request.userId) {
     throw new Error(`Permission denied`);
@@ -23,7 +25,7 @@ export const logout = () => async (request: FastifyRequest, reply: FastifyReply)
   await user.logout()
 
   // . Success
-  reply.status(200).send({
+  return {
     status: "success"
-  })
+  }
 }

@@ -1,6 +1,6 @@
-import {AuthRegisterBodySchema} from "controllers/authN/register/req-res";
+import {AuthRegisterBodySchema, AuthRegisterResponsesSchema} from "controllers/authN/register/req-res";
 import {EmailSender} from "controllers/interfaces";
-import {FastifyReply, FastifyRequest} from "fastify";
+import { FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
 import {UserEmail} from "models/user-email";
@@ -9,7 +9,7 @@ import {UserEmail} from "models/user-email";
 export const register = (
   emailSender: EmailSender,
 ) =>
-  async (request: FastifyRequest<{Body: FromSchema<typeof AuthRegisterBodySchema>}>, reply: FastifyReply) => {
+  async (request: FastifyRequest<{Body: FromSchema<typeof AuthRegisterBodySchema>}>): Promise<FromSchema<typeof AuthRegisterResponsesSchema["200"]>> => {
   // . Check email
   if (await UserEmail.checkEmailExist(request.body.email)) {
     throw new Error(`User with email ${request.body.email} already exist`)
@@ -29,8 +29,7 @@ export const register = (
 
   await emailSender.sendEmail(`Your token is ${token.id}`, email.value)
 
-  // . Return User
-  reply.status(200).send({
+  return {
     status: "success"
-  })
+  }
 }

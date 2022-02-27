@@ -1,3 +1,4 @@
+import {SuccessResponse} from "utils/json-schema";
 
 export const UserUpdateBodySchema = {
   title: "UserUpdateBodySchema",
@@ -20,3 +21,7 @@ export const UserUpdateBodySchema = {
     "role"
   ]
 } as const;
+
+export const UserUpdateResponsesSchema = {
+  ...SuccessResponse(),
+}
