@@ -1,4 +1,4 @@
-import {SuccessResponse} from "utils/json-schema";
+import {OkResponse} from "utils/json-schema";
 
 export const AuthRegisterBodySchema = {
   title: "AuthRegisterBody Schema",
@@ -17,5 +17,5 @@ export const AuthRegisterBodySchema = {
 } as const;
 
 export const AuthRegisterResponsesSchema = {
-  ...SuccessResponse(),
+  ...OkResponse(),
 } as const;

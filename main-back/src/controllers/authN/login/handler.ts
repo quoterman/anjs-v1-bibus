@@ -1,14 +1,14 @@
-import {AuthLoginBodySchema, AuthLoginResponsesSchema} from "controllers/authN/login/req-res";
+import {AuthLoginBodySchema} from "controllers/authN/login/req-res";
 import { FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {TempToken} from "models/temp-token";
-import { SuccessResponseTypeP} from "utils/json-schema";
 import {JWTToken} from "utils/jwt-tokens";
+import {SuccessResponseP} from "utils/responses";
 
 export const login = (
   privateKey: string,
 ) =>
-  async (request: FastifyRequest<{Body: FromSchema<typeof AuthLoginBodySchema>}>): SuccessResponseTypeP<typeof AuthLoginResponsesSchema> => {
+  async (request: FastifyRequest<{Body: FromSchema<typeof AuthLoginBodySchema>}>): SuccessResponseP<{ token: string }> => {
   // . Get temp token with user
   const tempToken = await TempToken.findOne({
     where: {
@@ -43,10 +43,13 @@ export const login = (
 
   // . Send JWT
   return {
-    token: JWTToken.sign(privateKey, {
-      id: jwtToken.id,
-      userId: user.id,
-      userEmail: user.mainEmail().value,
-    }),
+    status: "success",
+    result: {
+      token: JWTToken.sign(privateKey, {
+        id: jwtToken.id,
+        userId: user.id,
+        userEmail: user.mainEmail().value,
+      }),
+    },
   }
 }

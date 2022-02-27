@@ -12,7 +12,7 @@ export const initRequestToken = (
 ) => {
   app.post<{
     Body: FromSchema<typeof AuthRequestTokenBodySchema>;
-    // Reply: AuthRequestTokenResponsesSchema;
+    Reply: FromSchema<typeof AuthRequestTokenResponsesSchema["200"]>;
   }>(
     path,
     {

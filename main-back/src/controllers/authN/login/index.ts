@@ -11,6 +11,7 @@ export const initLogin = (
 ) => {
   app.post<{
     Body: FromSchema<typeof AuthLoginBodySchema>;
+    Reply: FromSchema<typeof AuthLoginResponsesSchema["200"]>
   }>(
     path,
     {

@@ -1,10 +1,9 @@
-import {AuthLogoutResponsesSchema} from "controllers/authN/logout/req-res";
 import {FastifyReply, FastifyRequest} from "fastify";
 import {User} from "models/user";
-import {SuccessResponseTypeP} from "utils/json-schema";
+import {SuccessResponseP} from "utils/responses";
 
 
-export const logout = () => async (request: FastifyRequest, reply: FastifyReply):SuccessResponseTypeP<typeof AuthLogoutResponsesSchema> => {
+export const logout = () => async (request: FastifyRequest, reply: FastifyReply): SuccessResponseP => {
   // . Check auth
   if (!request.userId) {
     throw new Error(`Permission denied`);

@@ -1,4 +1,4 @@
-import {SuccessResponse} from "utils/json-schema";
+import {OkResponse} from "utils/json-schema";
 
 export const UserUpdateBodySchema = {
   title: "UserUpdateBodySchema",
@@ -23,5 +23,5 @@ export const UserUpdateBodySchema = {
 } as const;
 
 export const UserUpdateResponsesSchema = {
-  ...SuccessResponse(),
+  ...OkResponse(),
 }

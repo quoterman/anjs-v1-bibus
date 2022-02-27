@@ -1,16 +1,16 @@
-import {AuthRegisterBodySchema, AuthRegisterResponsesSchema} from "controllers/authN/register/req-res";
+import {AuthRegisterBodySchema} from "controllers/authN/register/req-res";
 import {EmailSender} from "controllers/interfaces";
 import { FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
 import {UserEmail} from "models/user-email";
-import {SuccessResponseTypeP} from "utils/json-schema";
+import {SuccessResponseP} from "utils/responses";
 
 
 export const register = (
   emailSender: EmailSender,
 ) =>
-  async (request: FastifyRequest<{Body: FromSchema<typeof AuthRegisterBodySchema>}>): SuccessResponseTypeP<typeof AuthRegisterResponsesSchema> => {
+  async (request: FastifyRequest<{Body: FromSchema<typeof AuthRegisterBodySchema>}>): SuccessResponseP => {
   // . Check email
   if (await UserEmail.checkEmailExist(request.body.email)) {
     throw new Error(`User with email ${request.body.email} already exist`)
