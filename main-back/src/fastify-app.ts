@@ -1,10 +1,9 @@
 import {config} from "config";
-import {initAuthorizedAuthRoutes, initUnauthorizedAuthRoutes} from "controllers/authN";
-import {UserController} from "controllers/user";
-import {UserGetOneParamsSchema, UserUpdateBodySchema} from "controllers/user.req-res";
+import {initAuthorizedAuthHandlers, initUnauthorizedAuthHandlers} from "controllers/authN";
+import {initMeHandlers} from "controllers/me";
+import {initUserHandlers} from "controllers/user";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
-import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
 import {JWTToken} from "utils/jwt-tokens";
 import {v4} from "uuid";
@@ -52,20 +51,16 @@ app.addSchema({
 
 app.decorateRequest("userId", "");
 
-const userController = new UserController(
-  logger,
-)
-
 // . ROUTER
-// . AUTH PREFIX
-initUnauthorizedAuthRoutes(
+// . AUTHENTICATION HANDLERS
+initUnauthorizedAuthHandlers(
   app,
 )
 
 // . AUTHENTICATED
-app.register(async (childServer, opts, done) => {
+app.register(async (authenticatedRoutes, opts, done) => {
   // . AUTH MIDDLEWARE
-  childServer.addHook("onRequest", async (request) => {
+  authenticatedRoutes.addHook("onRequest", async (request) => {
     if (
       request.url.includes("documentation") ||
       request.url.includes("health")
@@ -107,67 +102,10 @@ app.register(async (childServer, opts, done) => {
     request.userId = user.id;
   });
 
-  initAuthorizedAuthRoutes(childServer)
-
-  childServer.register((userRoutes, opts, done) => {
-    // UPDATE USER
-    userRoutes.put<{
-      Body: FromSchema<typeof UserUpdateBodySchema>;
-    }>(
-      "/",
-      {
-        schema: {
-          body: UserUpdateBodySchema,
-        },
-      },
-      async (request, reply) => {
-        return userController.update(
-          request,
-        )
-      })
-
-    // GET ME
-    userRoutes.get(
-      "/me",
-      {
-        schema: {},
-      },
-      async (request, reply) => {
-        return userController.getMe(
-          request,
-        )
-      })
-
-    // GET USERS LIST
-    userRoutes.get(
-      "/",
-      {
-        schema: {},
-      },
-      async (request, reply) => {
-        return userController.list()
-      })
-
-    // GET USER BY ID
-    userRoutes.get<{
-      Params: FromSchema<typeof UserGetOneParamsSchema>;
-    }>(
-      "/:id",
-      {
-        schema: {
-          params: UserGetOneParamsSchema,
-          // response: UserResponse,
-        },
-      },
-      async (request, reply) => {
-        return userController.getOne(
-          request,
-        )
-      })
-    done()
-  }, {
-    prefix: "/user"
-  })
+  // Handlers
+  initAuthorizedAuthHandlers(authenticatedRoutes)
+  initMeHandlers(authenticatedRoutes)
+  initUserHandlers(authenticatedRoutes)
 
   done()
 })

@@ -7,7 +7,7 @@ import {emailSender} from "email-sender";
 import {FastifyInstance} from "fastify";
 
 
-export const initUnauthorizedAuthRoutes = (
+export const initUnauthorizedAuthHandlers = (
   app: FastifyInstance,
   prefix: string = "/auth"
 ) => {
@@ -21,7 +21,7 @@ export const initUnauthorizedAuthRoutes = (
   })
 }
 
-export const initAuthorizedAuthRoutes = (
+export const initAuthorizedAuthHandlers = (
   app: FastifyInstance,
   prefix: string = "/auth"
 ) => {
