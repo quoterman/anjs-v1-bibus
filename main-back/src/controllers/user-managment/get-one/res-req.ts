@@ -16,9 +16,9 @@ export const UserGetOneParamsSchema = {
   ]
 } as const;
 
-export const UserUpdateResponsesSchemaOkResult = {
+export const UserGetOneResponsesSchemaOkResult = {
   type: "object",
-  required: ["id"],
+  required: ["id", "role", "created_at", "email"],
   properties: {
     id: {
       type: "string",
@@ -34,8 +34,8 @@ export const UserUpdateResponsesSchemaOkResult = {
     },
   },
   additionalProperties: false,
-}
+} as const
 
-export const UserUpdateResponsesSchema = {
-  ...OkResponse(),
+export const UserGetOneResponsesSchema = {
+  ...OkResponse(UserGetOneResponsesSchemaOkResult),
 }
