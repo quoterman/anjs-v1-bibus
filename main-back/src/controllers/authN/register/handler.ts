@@ -4,12 +4,13 @@ import { FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
 import {UserEmail} from "models/user-email";
+import {SuccessResponseTypeP} from "utils/json-schema";
 
 
 export const register = (
   emailSender: EmailSender,
 ) =>
-  async (request: FastifyRequest<{Body: FromSchema<typeof AuthRegisterBodySchema>}>): Promise<FromSchema<typeof AuthRegisterResponsesSchema["200"]>> => {
+  async (request: FastifyRequest<{Body: FromSchema<typeof AuthRegisterBodySchema>}>): SuccessResponseTypeP<typeof AuthRegisterResponsesSchema> => {
   // . Check email
   if (await UserEmail.checkEmailExist(request.body.email)) {
     throw new Error(`User with email ${request.body.email} already exist`)

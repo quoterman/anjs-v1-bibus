@@ -1,3 +1,4 @@
+import {SuccessResponse} from "utils/json-schema";
 
 export const AuthRequestTokenBodySchema = {
   title: "AuthRequestTokenBody Schema",
@@ -16,18 +17,5 @@ export const AuthRequestTokenBodySchema = {
 } as const;
 
 export const AuthRequestTokenResponsesSchema = {
-  "200": {
-    title: "Success",
-    type: "object",
-    required: ["status"],
-    properties: {
-      status: {
-        const: "success",
-        type: "string",
-        description: "Successful operation status",
-        example: "success",
-      },
-    },
-    additionalProperties: false,
-  }
+  ...SuccessResponse(),
 } as const;
