@@ -3,7 +3,7 @@ import {FastifyInstance} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
 import {OkResponse} from "utils/json-schema";
-import {SuccessResponseP} from "utils/responses";
+import {SuccessResponse, SuccessResponseP} from "utils/responses";
 
 export const initUpdateUser = (
   app: FastifyInstance,
@@ -46,9 +46,9 @@ export const initUpdateUser = (
       await user.updateData(userData, requester)
       await user.save()
 
-      return {
-        status: "success",
-      }
+      return SuccessResponse.create(
+        request.id,
+      )
     }
   )
 }

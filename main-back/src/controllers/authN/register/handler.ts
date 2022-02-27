@@ -4,7 +4,7 @@ import { FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
 import {UserEmail} from "models/user-email";
-import {SuccessResponseP} from "utils/responses";
+import {SuccessResponse, SuccessResponseP} from "utils/responses";
 
 
 export const register = (
@@ -30,7 +30,7 @@ export const register = (
 
   await emailSender.sendEmail(`Your token is ${token.id}`, email.value)
 
-  return {
-    status: "success"
-  }
+  return SuccessResponse.create(
+    request.id,
+  )
 }

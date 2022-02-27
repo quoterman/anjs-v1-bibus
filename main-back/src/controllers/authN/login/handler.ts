@@ -3,7 +3,7 @@ import { FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {TempToken} from "models/temp-token";
 import {JWTToken} from "utils/jwt-tokens";
-import {SuccessResponseP} from "utils/responses";
+import {SuccessResponse, SuccessResponseP} from "utils/responses";
 
 export const login = (
   privateKey: string,
@@ -42,14 +42,14 @@ export const login = (
   }
 
   // . Send JWT
-  return {
-    status: "success",
-    result: {
+  return SuccessResponse.create(
+    request.id,
+    {
       token: JWTToken.sign(privateKey, {
         id: jwtToken.id,
         userId: user.id,
         userEmail: user.mainEmail().value,
       }),
-    },
-  }
+    }
+  )
 }

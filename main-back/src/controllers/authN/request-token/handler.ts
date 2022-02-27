@@ -3,7 +3,7 @@ import {EmailSender} from "controllers/interfaces";
 import {FastifyReply, FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {UserEmail} from "models/user-email";
-import {SuccessResponseP} from "utils/responses";
+import {SuccessResponse, SuccessResponseP} from "utils/responses";
 
 export const requestToken = (
   emailSender: EmailSender,
@@ -19,9 +19,9 @@ export const requestToken = (
   })
 
   if (!userEmail) {
-    return {
-      status: "success"
-    }
+    return SuccessResponse.create(
+      request.id,
+    )
   }
 
   const user = userEmail.user
@@ -40,7 +40,7 @@ export const requestToken = (
   await emailSender.sendEmail(`Your token is ${token.id}`, user.mainEmail().value)
 
   // . Success
-  return {
-    status: "success"
-  }
+  return SuccessResponse.create(
+    request.id,
+  )
 }

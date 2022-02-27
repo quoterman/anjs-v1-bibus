@@ -1,6 +1,6 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {User} from "models/user";
-import {SuccessResponseP} from "utils/responses";
+import {SuccessResponse, SuccessResponseP} from "utils/responses";
 
 
 export const logout = () => async (request: FastifyRequest, reply: FastifyReply): SuccessResponseP => {
@@ -24,7 +24,7 @@ export const logout = () => async (request: FastifyRequest, reply: FastifyReply)
   await user.logout()
 
   // . Success
-  return {
-    status: "success"
-  }
+  return SuccessResponse.create(
+    request.id,
+  )
 }
