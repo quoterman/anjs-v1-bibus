@@ -127,4 +127,19 @@ export class User extends BaseEntity {
       this.role = newUserData.role
     }
   }
+
+  async changeActiveEmail(newEmail: string, whoEditing: User) {
+    if (whoEditing.role !== UserRole.ADMIN || whoEditing.id !== this.id) {
+      throw new Error(`Permission denied`)
+    }
+
+    this.mainEmail().makeNotMain()
+
+    const email = await UserEmail.createByUser(newEmail, whoEditing)
+
+    this.emails = [
+      ...this.emails,
+      email
+    ]
+  }
 }

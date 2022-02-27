@@ -1,22 +1,27 @@
-import {UserUpdateBodySchema, UserUpdateResponsesSchema} from "controllers/user-managment/update/req-res";
+import {EmailSender} from "controllers/interfaces";
+import {
+  ChangeUserEmailBodySchema,
+  ChangeUserEmailResponsesSchema
+} from "controllers/user-managment/change-email/req-res";
 import {FastifyInstance} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";
 import {SuccessResponse, SuccessResponseP} from "utils/responses";
 
-export const initUpdateUser = (
+export const initChangeUserEmailHandler = (
   app: FastifyInstance,
+  emailSender: EmailSender,
   path: string = "/",
 ) => {
-  app.put<{
-    Body: FromSchema<typeof UserUpdateBodySchema>;
-    Reply: FromSchema<typeof UserUpdateResponsesSchema["200"]>
+  app.post<{
+    Body: FromSchema<typeof ChangeUserEmailBodySchema>;
+    Reply: FromSchema<typeof ChangeUserEmailResponsesSchema["200"]>
   }>(
     path,
     {
       schema: {
-        body: UserUpdateBodySchema,
-        response: UserUpdateResponsesSchema,
+        body: ChangeUserEmailBodySchema,
+        response: ChangeUserEmailResponsesSchema,
       },
     },
     async (request): SuccessResponseP => {
@@ -40,9 +45,7 @@ export const initUpdateUser = (
         throw new Error(`Not found`)
       }
 
-      const userData = Object.assign(new User(), request.body)
-
-      await user.updateData(userData, requester)
+      await user.changeActiveEmail(request.body.email, requester)
       await user.save()
 
       return SuccessResponse.create(

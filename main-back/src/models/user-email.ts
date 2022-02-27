@@ -67,4 +67,12 @@ export class UserEmail extends BaseEntity {
   activate() {
     this.activated = true
   }
+
+  makeNotMain() {
+    this.main = false
+  }
+
+  makeMain() {
+    this.main = true
+  }
 }
