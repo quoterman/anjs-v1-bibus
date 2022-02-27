@@ -1,4 +1,4 @@
-import {UserUpdateBodySchema} from "controllers/user/update/req-res";
+import {UserUpdateBodySchema} from "controllers/user-managment/update/req-res";
 import {FastifyInstance} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";

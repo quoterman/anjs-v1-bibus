@@ -1,6 +1,6 @@
-import {initUserGetOne} from "controllers/user/get-one";
-import {initUserList} from "controllers/user/list";
-import {initUpdateUser} from "controllers/user/update";
+import {initUserGetOne} from "controllers/user-managment/get-one";
+import {initUserList} from "controllers/user-managment/list";
+import {initUpdateUser} from "controllers/user-managment/update";
 import {FastifyInstance} from "fastify";
 
 

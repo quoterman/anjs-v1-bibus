@@ -1,4 +1,4 @@
-import {UserGetOneParamsSchema} from "controllers/user/get-one/res-req";
+import {UserGetOneParamsSchema} from "controllers/user-managment/get-one/res-req";
 import {FastifyInstance, FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {User} from "models/user";

@@ -1,7 +1,7 @@
 import {config} from "config";
 import {initAuthorizedAuthHandlers, initUnauthorizedAuthHandlers} from "controllers/authN";
 import {initMeHandlers} from "controllers/me";
-import {initUserHandlers} from "controllers/user";
+import {initUserHandlers} from "controllers/user-managment";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
 import {User} from "models/user";
