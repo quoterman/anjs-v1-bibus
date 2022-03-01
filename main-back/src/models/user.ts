@@ -39,6 +39,7 @@ export class User extends BaseEntity {
   @Column({ type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP', nullable: true })
   updatedAt: Date
 
+  // GETTERS
   lastJwtToken() {
     return this.jwtTokens.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]
   }
@@ -85,6 +86,7 @@ export class User extends BaseEntity {
     await this.mainEmail().createNewToken()
   }
 
+  // MUTATIONS
   async logout() {
     const jwtToken = this.lastJwtToken()
     jwtToken.logout()

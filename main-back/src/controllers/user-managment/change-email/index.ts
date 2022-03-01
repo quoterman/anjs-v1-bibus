@@ -11,7 +11,7 @@ import {SuccessResponse, SuccessResponseP} from "utils/responses";
 export const initChangeUserEmailHandler = (
   app: FastifyInstance,
   emailSender: EmailSender,
-  path: string = "/",
+  path: string = "/change-email",
 ) => {
   app.post<{
     Body: FromSchema<typeof ChangeUserEmailBodySchema>;

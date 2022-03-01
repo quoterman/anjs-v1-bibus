@@ -1,0 +1,18 @@
+{
+  "transforms": [
+    {
+      "mode": "sql",
+      "include": "**/*.sql",
+      "emitTemplate": "{{dir}}/{{name}}.queries.ts"
+    }
+  ],
+  "srcDir": "./src/",
+  "failOnError": true,
+  "camelCaseColumnNames": false,
+  "dbUrl": "postgres://uviefsfksicjww:328418dbe197a2073b23415f9708905d8faebd1bed7f3b4eb3a2e8c57230924c@ec2-52-215-225-178.eu-west-1.compute.amazonaws.com:5432/degpr9drlfguhl",
+  "db": {
+    "ssl": {
+      "rejectUnauthorized": false
+    }
+  }
+}

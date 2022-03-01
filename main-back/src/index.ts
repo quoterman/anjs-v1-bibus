@@ -10,7 +10,7 @@ import {createConnection} from "typeorm";
 
 (async () => {
   // DB
-  await createConnection({
+  const cont = await createConnection({
     url: config.db.connectionString,
     type: "postgres",
     ssl: true,

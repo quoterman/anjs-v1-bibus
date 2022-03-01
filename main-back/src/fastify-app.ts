@@ -5,6 +5,7 @@ import {initUserHandlers} from "controllers/user-managment";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
 import {User} from "models/user";
+import {getConnection} from "typeorm";
 import {JWTToken} from "utils/jwt-tokens";
 import {v4} from "uuid";
 
@@ -105,7 +106,7 @@ app.register(async (authenticatedRoutes, opts, done) => {
   // Handlers
   initAuthorizedAuthHandlers(authenticatedRoutes)
   initMeHandlers(authenticatedRoutes)
-  initUserHandlers(authenticatedRoutes)
+  initUserHandlers(authenticatedRoutes, getConnection())
 
   done()
 })

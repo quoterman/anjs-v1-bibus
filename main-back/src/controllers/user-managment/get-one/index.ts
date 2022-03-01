@@ -1,3 +1,4 @@
+import {findUserById} from "controllers/user-managment/get-one/queries.queries";
 import {
   UserGetOneParamsSchema,
   UserGetOneResponsesSchema,
@@ -5,12 +6,13 @@ import {
 } from "controllers/user-managment/get-one/res-req";
 import {FastifyInstance, FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
-import {User} from "models/user";
+import {Connection} from "typeorm";
 import {SuccessResponse, SuccessResponseP} from "utils/responses";
 
 
 export const initUserGetOne = (
   app: FastifyInstance,
+  connection: Connection,
   path: string = "/:id"
 ) => {
   app.get<{
@@ -24,24 +26,39 @@ export const initUserGetOne = (
       },
     },
     async (request: FastifyRequest<{Params: FromSchema<typeof UserGetOneParamsSchema>}>): SuccessResponseP<FromSchema<typeof UserGetOneResponsesSchemaOkResult>> => {
-        const user = await User.findOne({
-          where: {
-            id: request.params.id,
-          }
-        })
+        // const user = await User.findOne({
+        //   where: {
+        //     id: request.params.id,
+        //   }
+        // })
+        //
+        // if (!user) {
+        //   throw new Error(`There is no user with this id`)
+        // }
 
-        if (!user) {
-          throw new Error(`There is no user with this id`)
+        const [result] = await findUserById.run(
+          {
+            userId: request.params.id,
+          },
+          {
+            query: async (query, params) => {
+              return {
+                rows: await connection.query(query, params)
+              }
+            },
+          }
+        )
+
+        if (!result) {
+          throw new Error(`Not found`)
         }
 
         return SuccessResponse.create<FromSchema<typeof UserGetOneResponsesSchemaOkResult>>(
           request.id,
           {
-            id: user.id,
-            role: user.role,
-            created_at: user.createdAt.toISOString(),
-            email: user.mainEmail().value,
-          }
+            ...result,
+            created_at: result.created_at.toISOString(),
+          },
         )
     }
   )

@@ -9,6 +9,8 @@
     "@graphql-codegen/introspection": "^1.18.2",
     "@graphql-codegen/typescript": "^1.22.4",
     "@graphql-codegen/typescript-resolvers": "^1.19.5",
+    "@pgtyped/cli": "^0.13.0",
+    "@pgtyped/query": "^0.13.0",
     "@types/cron": "^1.7.3",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.12.4",
@@ -50,7 +52,8 @@
     "start": "NODE_PATH=./build node build/apps/main-gql/index.js",
     "test": "jest --passWithNoTests",
     "build": "rimraf build && tsc -P tsconfig.build.json",
-    "dev:mvc": "npm run build && NODE_PATH=./build node build/index.js"
+    "dev:mvc": "npm run build && NODE_PATH=./build node build/index.js",
+    "typesql": "npx pgtyped -c pgtyped.config.json"
   },
   "jest": {
     "testEnvironment": "node",
