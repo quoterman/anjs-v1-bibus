@@ -9,7 +9,7 @@ import {UserEmail} from "models/user-email";
 import {SuccessResponse, SuccessResponseWR} from "utils/responses";
 
 
-export const initRequestToken = (
+export const initRequestTokenHandler = (
   app: FastifyInstance,
   emailSender: EmailSender,
   path: string = "/request-token"

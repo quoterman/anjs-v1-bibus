@@ -127,4 +127,12 @@ export class User extends BaseEntity {
       this.role = newUserData.role
     }
   }
+
+  async changeEmail(newEmail: string) {
+    this.mainEmail().setNotMain()
+
+    const newUserEmail = await UserEmail.createByUser(newEmail, this)
+
+    this.emails.push(newUserEmail)
+  }
 }

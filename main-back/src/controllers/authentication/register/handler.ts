@@ -1,4 +1,4 @@
-import {EmailSender} from "controllers/auth";
+import {EmailSender} from "controllers/authentication/email-sender";
 import {AuthRegisterBodySchema} from "controllers/authentication/register/req-res";
 import {FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";

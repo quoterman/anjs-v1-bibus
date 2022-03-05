@@ -1,12 +1,8 @@
 import {config} from "config";
-import {AuthController} from "controllers/auth";
-import { AuthLogoutResponsesSchema
-} from "controllers/auth.req-res";
 import {initAuthDomainRoutes} from "controllers/authentication";
-import {register} from "controllers/authentication/register/handler";
+import {initLogoutHandler} from "controllers/authentication/logout";
 import {UserController} from "controllers/user";
 import {UserGetOneParamsSchema, UserUpdateBodySchema} from "controllers/user.req-res";
-import {emailSender} from "email-sender";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
 import {FromSchema} from "json-schema-to-ts";
@@ -57,21 +53,16 @@ app.addSchema({
 
 app.decorateRequest("userId", "");
 
-const authController = new AuthController(
-  logger,
-  emailSender,
-  config.jwtToken.secret,
-)
-
-const registerHandler = register(emailSender)
-
 const userController = new UserController(
   logger,
 )
 
 // . ROUTER
 // . AUTH PREFIX
-initAuthDomainRoutes(app)
+initAuthDomainRoutes(
+  app,
+  config.jwtToken.secret,
+)
 
 // . AUTHENTICATED
 app.register(async (childServer, opts, done) => {
@@ -119,18 +110,9 @@ app.register(async (childServer, opts, done) => {
   });
 
   childServer.register((authRoutes, opts, done) => {
-    authRoutes.post(
-      "/logout",
-      {
-        schema: {
-          response: AuthLogoutResponsesSchema,
-        },
-      },
-      async (request, reply) => {
-        return authController.logout(
-          request,
-        )
-      })
+    initLogoutHandler(
+      authRoutes,
+    )
     done()
   }, {
     prefix: "/auth"

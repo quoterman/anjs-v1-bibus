@@ -33,7 +33,7 @@ export class UserEmail extends BaseEntity {
     return (await this.tempTokens).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]
   }
 
-  static async createByUser(email: string, user: User) {
+  static async createByUser(email: string, user: User): Promise<UserEmail> {
     const userEmail = new UserEmail()
     userEmail.id = v4()
     userEmail.main = true
@@ -66,5 +66,9 @@ export class UserEmail extends BaseEntity {
 
   activate() {
     this.activated = true
+  }
+
+  setNotMain() {
+    this.main = false
   }
 }
