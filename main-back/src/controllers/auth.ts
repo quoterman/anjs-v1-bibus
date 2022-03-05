@@ -1,11 +1,12 @@
 import {AuthLoginBodySchema, AuthRegisterBodySchema, AuthRequestTokenBodySchema} from "controllers/auth.req-res";
-import {FastifyReply, FastifyRequest} from "fastify";
+import { FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {TempToken} from "models/temp-token";
 import {User} from "models/user";
 import {UserEmail} from "models/user-email";
 import pino from "pino";
 import {JWTToken} from "utils/jwt-tokens";
+import {SuccessResponse, SuccessResponseR, SuccessResponseWR} from "utils/responses";
 
 type EmailSender = {
   sendEmail: (message: string, email: string) => Promise<void>
@@ -18,7 +19,7 @@ export class AuthController {
     private privateKey: string,
   ) {}
 
-  async register(request: FastifyRequest<{Body: FromSchema<typeof AuthRegisterBodySchema>}>, reply: FastifyReply) {
+  async register(request: FastifyRequest<{Body: FromSchema<typeof AuthRegisterBodySchema>}>): Promise<SuccessResponseWR> {
     // . Check email
     if (await UserEmail.checkEmailExist(request.body.email)) {
       throw new Error(`User with email ${request.body.email} already exist`)
@@ -39,12 +40,10 @@ export class AuthController {
     await this.emailSender.sendEmail(`Your token is ${token.id}`, email.value)
 
     // . Return User
-    reply.status(200).send({
-      status: "success"
-    })
+    return SuccessResponse.create(request.id)
   }
 
-  async requestToken(request: FastifyRequest<{Body: FromSchema<typeof AuthRequestTokenBodySchema>}>, reply: FastifyReply) {
+  async requestToken(request: FastifyRequest<{Body: FromSchema<typeof AuthRequestTokenBodySchema>}>): Promise<SuccessResponseWR> {
     // . Get user email for token
     const userEmail = await UserEmail.findOne({
       where: {
@@ -55,11 +54,7 @@ export class AuthController {
     })
 
     if (!userEmail) {
-      reply.status(200).send({
-        status: "success"
-      })
-
-      return
+      return SuccessResponse.create(request.id)
     }
 
     const user = userEmail.user
@@ -78,12 +73,10 @@ export class AuthController {
     await this.emailSender.sendEmail(`Your token is ${token.id}`, user.mainEmail().value)
 
     // . Success
-    reply.status(200).send({
-      status: "success"
-    })
+    return SuccessResponse.create(request.id)
   }
 
-  async login(request: FastifyRequest<{Body: FromSchema<typeof AuthLoginBodySchema>}>, reply: FastifyReply) {
+  async login(request: FastifyRequest<{Body: FromSchema<typeof AuthLoginBodySchema>}>): Promise<SuccessResponseR<{token: string}>> {
     // . Get temp token with user
     const tempToken = await TempToken.findOne({
       where: {
@@ -117,7 +110,7 @@ export class AuthController {
     }
 
     // . Send JWT
-    reply.status(200).send({
+    return SuccessResponse.create(request.id, {
       token: JWTToken.sign(this.privateKey, {
         id: jwtToken.id,
         userId: user.id,
@@ -126,7 +119,7 @@ export class AuthController {
     })
   }
 
-  async logout(request: FastifyRequest, reply: FastifyReply) {
+  async logout(request: FastifyRequest): Promise<SuccessResponseWR> {
     // . Check auth
     if (!request.userId) {
       throw new Error(`Permission denied`);
@@ -147,8 +140,6 @@ export class AuthController {
     await user.logout()
 
     // . Success
-    reply.status(200).send({
-      status: "success"
-    })
+    return SuccessResponse.create(request.id)
   }
 }
