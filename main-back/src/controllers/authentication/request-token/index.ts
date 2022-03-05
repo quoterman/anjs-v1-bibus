@@ -1,8 +1,8 @@
+import {EmailSender} from "controllers/authentication/email-sender";
 import {
   AuthRequestTokenBodySchema,
   AuthRequestTokenResponsesSchema
 } from "controllers/authentication/request-token/req-res";
-import {emailSender} from "email-sender";
 import {FastifyInstance} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {UserEmail} from "models/user-email";
@@ -11,6 +11,7 @@ import {SuccessResponse, SuccessResponseWR} from "utils/responses";
 
 export const initRequestToken = (
   app: FastifyInstance,
+  emailSender: EmailSender,
   path: string = "/request-token"
 ) => {
   app.post<{

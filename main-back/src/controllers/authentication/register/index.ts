@@ -1,12 +1,13 @@
+import {EmailSender} from "controllers/authentication/email-sender";
 import {register} from "controllers/authentication/register/handler";
 import {AuthRegisterBodySchema, AuthRegisterResponsesSchema} from "controllers/authentication/register/req-res";
-import {emailSender} from "email-sender";
 import {FastifyInstance} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 
 
 export const initRegisterHandler = (
   app: FastifyInstance,
+  emailSender: EmailSender,
   path: string = "/register",
   method: "post" | "get" = "post"
 ) => {

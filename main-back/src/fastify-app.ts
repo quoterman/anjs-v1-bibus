@@ -1,12 +1,9 @@
 import {config} from "config";
 import {AuthController} from "controllers/auth";
-import {
-  AuthLoginBodySchema,
-  AuthLoginResponsesSchema, AuthLogoutResponsesSchema
+import { AuthLogoutResponsesSchema
 } from "controllers/auth.req-res";
-import {initRegisterHandler} from "controllers/authentication/register";
+import {initAuthDomainRoutes} from "controllers/authentication";
 import {register} from "controllers/authentication/register/handler";
-import {initRequestToken} from "controllers/authentication/request-token";
 import {UserController} from "controllers/user";
 import {UserGetOneParamsSchema, UserUpdateBodySchema} from "controllers/user.req-res";
 import {emailSender} from "email-sender";
@@ -18,6 +15,7 @@ import {JWTToken} from "utils/jwt-tokens";
 import {v4} from "uuid";
 
 import {logger} from "./logger";
+
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -73,37 +71,7 @@ const userController = new UserController(
 
 // . ROUTER
 // . AUTH PREFIX
-app.register((authRoutes, opts, done) => {
-  initRegisterHandler(
-    authRoutes,
-    "/register",
-    "post"
-  )
-
-  authRoutes.post<{
-    Body: FromSchema<typeof AuthLoginBodySchema>;
-    // Reply: AuthRegisterResponsesSchema;
-  }>(
-    "/login",
-    {
-      schema: {
-        body: AuthLoginBodySchema,
-        response: AuthLoginResponsesSchema,
-      },
-    },
-    async (request, reply) => {
-      return authController.login(
-        request,
-      )
-    })
-
-  initRequestToken(
-    authRoutes,
-  )
-  done()
-}, {
-  prefix: "/auth"
-})
+initAuthDomainRoutes(app)
 
 // . AUTHENTICATED
 app.register(async (childServer, opts, done) => {

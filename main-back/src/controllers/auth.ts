@@ -1,4 +1,5 @@
 import {AuthLoginBodySchema} from "controllers/auth.req-res";
+import {EmailSender} from "controllers/authentication/email-sender";
 import { FastifyRequest} from "fastify";
 import {FromSchema} from "json-schema-to-ts";
 import {TempToken} from "models/temp-token";
