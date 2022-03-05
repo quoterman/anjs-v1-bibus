@@ -2,10 +2,11 @@ import {config} from "config";
 import {AuthController} from "controllers/auth";
 import {
   AuthLoginBodySchema,
-  AuthLoginResponsesSchema, AuthLogoutResponsesSchema,
-  AuthRegisterBodySchema,
-  AuthRegisterResponsesSchema, AuthRequestTokenBodySchema, AuthRequestTokenResponsesSchema
+  AuthLoginResponsesSchema, AuthLogoutResponsesSchema
 } from "controllers/auth.req-res";
+import {initRegisterHandler} from "controllers/authentication/register";
+import {register} from "controllers/authentication/register/handler";
+import {initRequestToken} from "controllers/authentication/request-token";
 import {UserController} from "controllers/user";
 import {UserGetOneParamsSchema, UserUpdateBodySchema} from "controllers/user.req-res";
 import {emailSender} from "email-sender";
@@ -64,6 +65,8 @@ const authController = new AuthController(
   config.jwtToken.secret,
 )
 
+const registerHandler = register(emailSender)
+
 const userController = new UserController(
   logger,
 )
@@ -71,23 +74,11 @@ const userController = new UserController(
 // . ROUTER
 // . AUTH PREFIX
 app.register((authRoutes, opts, done) => {
-  authRoutes.post<{
-    Body: FromSchema<typeof AuthRegisterBodySchema>;
-    // Reply: AuthRegisterResponsesSchema;
-  }>(
+  initRegisterHandler(
+    authRoutes,
     "/register",
-    {
-      schema: {
-        body: AuthRegisterBodySchema,
-        response: AuthRegisterResponsesSchema,
-      },
-    },
-    async (request, reply) => {
-      return authController.register(
-        request,
-        reply
-      )
-    })
+    "post"
+  )
 
   authRoutes.post<{
     Body: FromSchema<typeof AuthLoginBodySchema>;
@@ -103,27 +94,12 @@ app.register((authRoutes, opts, done) => {
     async (request, reply) => {
       return authController.login(
         request,
-        reply
       )
     })
 
-  authRoutes.post<{
-    Body: FromSchema<typeof AuthRequestTokenBodySchema>;
-    // Reply: AuthRequestTokenResponsesSchema;
-  }>(
-    "/request-token",
-    {
-      schema: {
-        body: AuthRequestTokenBodySchema,
-        response: AuthRequestTokenResponsesSchema,
-      },
-    },
-    async (request, reply) => {
-      return authController.requestToken(
-        request,
-        reply
-      )
-    })
+  initRequestToken(
+    authRoutes,
+  )
   done()
 }, {
   prefix: "/auth"
@@ -185,7 +161,6 @@ app.register(async (childServer, opts, done) => {
       async (request, reply) => {
         return authController.logout(
           request,
-          reply
         )
       })
     done()
