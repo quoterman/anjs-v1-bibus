@@ -1,8 +1,9 @@
 import {config} from "config";
 import {initAuthDomainRoutes} from "controllers/authentication";
 import {initLogoutHandler} from "controllers/authentication/logout";
+import {initGetUser} from "controllers/get-user";
 import {UserController} from "controllers/user";
-import {UserGetOneParamsSchema, UserUpdateBodySchema} from "controllers/user.req-res";
+import { UserUpdateBodySchema} from "controllers/user.req-res";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifySwagger from "fastify-swagger";
 import {FromSchema} from "json-schema-to-ts";
@@ -158,21 +159,8 @@ app.register(async (childServer, opts, done) => {
       })
 
     // GET USER BY ID
-    userRoutes.get<{
-      Params: FromSchema<typeof UserGetOneParamsSchema>;
-    }>(
-      "/:id",
-      {
-        schema: {
-          params: UserGetOneParamsSchema,
-          // response: UserResponse,
-        },
-      },
-      async (request, reply) => {
-        return userController.getOne(
-          request,
-        )
-      })
+    initGetUser(userRoutes)
+
     done()
   }, {
     prefix: "/user"
