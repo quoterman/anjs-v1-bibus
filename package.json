@@ -1,6 +1,7 @@
 {
   "name": "bibus",
   "version": "1.0.0",
+  "license": "UNLICENSED",
   "scripts": {
     "prettier:base": "prettier \"**/*.{js,ts{,x},yml,yaml,json,md}\"",
     "prettier:write": "yarn prettier:base --write",
